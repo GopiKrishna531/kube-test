@@ -6,10 +6,10 @@ export LD_LIBRARY_PATH="/usr/local/nvidia/lib:$LD_LIBRARY_PATH"
 # Tools config for CUDA, Anaconda installed in the common /tools directory
 source /tools/config.sh
 # Activate your environment
-source activate py35
+source activate /storage/home/gopikrishna/.conda/envs/g_py
 # Change to the directory in which your code is present
-cd /path/to/run.sh
+cd /storage/home/gopikrishna
 # Run the code. The -u option is used here to use unbuffered writes
 # so that output is piped to the file as and when it is produced.
-# Here, the code is the MNIST Tensorflow example.
-python -u convolutional.py &> out
+
+python -u xml_to_csv_parser.py &> out
