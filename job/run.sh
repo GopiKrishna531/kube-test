@@ -12,4 +12,4 @@ cd /storage/home/gopikrishna/kube-test/job
 # Run the code. The -u option is used here to use unbuffered writes
 # so that output is piped to the file as and when it is produced.
 
-python -u prepare_train_val_datasets.py &> /storage/home/gopikrishna/out
+python -u vgg16_for_VOC2012.py &> /storage/home/gopikrishna/out
