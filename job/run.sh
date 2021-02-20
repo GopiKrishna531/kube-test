@@ -6,7 +6,7 @@ export LD_LIBRARY_PATH="/usr/local/nvidia/lib:$LD_LIBRARY_PATH"
 # Tools config for CUDA, Anaconda installed in the common /tools directory
 source /tools/config.sh
 # Activate your environment
-source activate /storage/home/gopikrishna/.conda/envs/g_py
+source activate /storage/home/gopikrishna/.conda/envs/gopipy36
 # Change to the directory in which your code is present
 cd /storage/home/gopikrishna/kube-test/job
 # Run the code. The -u option is used here to use unbuffered writes
