@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   # Name of the pod. This is the name to use in any interaction with kubectl
-  name: g_py
+  name: gpy
 spec:
   securityContext:
     # You need to specify your user ID here. You can get this by running "id -u"
@@ -26,22 +26,22 @@ spec:
 #  - name: data3
 #    persistentVolumeClaim:
 #      claimName: data3
-  - name: scratch1
-    persistentVolumeClaim:
-      claimName: scratch1
-#  - name: scratch2
+#  - name: scratch1
 #    persistentVolumeClaim:
-#      claimName: scratch2
+#      claimName: scratch1
+  - name: scratch2
+    persistentVolumeClaim:
+      claimName: scratch2
   # The following 3 entries make the Nvidia drivers available. You do not need to
   # modify them.
+  #- hostPath:
+  #    path: /usr/lib/nvidia-driver/bin
+  #  name: nvbin
+  #- hostPath:
+  #    path: /usr/lib/nvidia-driver
+  #  name: nvlib
   - hostPath:
-      path: /usr/lib/nvidia-driver/bin
-    name: nvbin
-  - hostPath:
-      path: /usr/lib/nvidia-driver
-    name: nvlib
-  - hostPath:
-      path: /usr/lib/
+     path: /usr/lib/
     name: usrlib
   - hostPath:
       path: /usr/bin
@@ -49,13 +49,19 @@ spec:
   - hostPath:
       path: /lib
     name: lib
-  # You can specify a label indicating a specific model of GPU here when you need it.
+ # You can specify a label indicating a specific model of GPU here when you need it.
   # Leave it commented when learning how to use the cluster.
-#  nodeSelector:
-#    gputype: k40
-  # This part specifies the Docker container in which your code will run.
+#  nodeName: panini
+  #nodeSelector: 
+  #  hostname: markov
+   #gputype: titanx
+   # This part specifies the Docker container in which your code will run.
   containers:
-  - name: g_py # The container also has a name but it ususally doesn't matter
+    # it can be different from pod name, But I have given same name as pod name. It doesn't matter.
+  - name: gpy
+   # image: local-image:latest
+    imagePullPolicy: IfNotPresent
+  #- name: py # The container also has a name but it ususally doesn't matter
     # This is the Docker image on which your container is based. Leave it unchanged.
     image: ubuntu:16.04
     # This is the command which is run once the container is created. Point it to
@@ -68,13 +74,14 @@ spec:
     resources:
       # For the purposes of using the cluster, the "requests" section should be the
       # same as the "limits" section except for the line for GPU
-      limits:
-        alpha.kubernetes.io/nvidia-gpu: 1 # Number of GPUs
+     limits:
+        nvidia.com/gpu: 1       
+        #alpha.kubernetes.io/nvidia-gpu: 1 # Number of GPUs
         # RAM can be specified in either MiB (1024x1024 bytes) (ex. "500Mi")
         # or GiB (ex. "4Gi")
         memory: "10.9Gi"
         cpu: "1" # Number of CPU cores
-      requests:
+     requests:
         memory: "10.9Gi"
         cpu: "1"
     # Here, you can specify where you want the above directories to be mounted
@@ -94,14 +101,14 @@ spec:
 #      name: data2
 #    - mountPath: /datasets/data3
 #      name: data3
-    - mountPath: /scratch/scratch1
-      name: scratch1
-#    - mountPath: /scratch/scratch2
-#      name: scratch2
-    - mountPath: /usr/local/nvidia/bin
-      name: nvbin
-    - mountPath: /usr/local/nvidia/lib
-      name: nvlib
+#    - mountPath: /scratch/scratch1
+#      name: scratch1
+    - mountPath: /scratch/scratch2
+      name: scratch2
+#    - mountPath: /usr/local/nvidia/bin
+#      name: nvbin
+#    - mountPath: /usr/local/nvidia/lib
+#      name: nvlib
     - mountPath: /usr/lib/
       name: usrlib
     - mountPath: /usr/bin/
