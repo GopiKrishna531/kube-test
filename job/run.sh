@@ -8,8 +8,8 @@ source /tools/config.sh
 # Activate your environment
 source activate /storage/home/gopikrishna/.conda/envs/g_py
 # Change to the directory in which your code is present
-cd /storage/home/gopikrishna
+cd /storage/home/gopikrishna/kube-test/job
 # Run the code. The -u option is used here to use unbuffered writes
 # so that output is piped to the file as and when it is produced.
 
-python -u xml_to_csv_parser.py &> out
+python -u xml_to_csv_parser.py &> /storage/home/gopikrishna/out
