@@ -54,6 +54,7 @@ def prepare_train_val_dataset():
         ALL_IMAGES_FOLDER_PATH = CLASSIFIED_IMAGES_SOURCE + f"/{img_class}/*.jpg"
 
         all_image_files = glob.glob(ALL_IMAGES_FOLDER_PATH)
+        all_image_files = [os.path.basename(filename) for filename in all_image_files]
 
         val_images_list = all_image_files[:image_move_count]
         train_images_list = all_image_files[image_move_count:]
