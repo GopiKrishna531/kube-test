@@ -12,4 +12,4 @@ cd /storage/home/gopikrishna/kube-test/job
 # Run the code. The -u option is used here to use unbuffered writes
 # so that output is piped to the file as and when it is produced.
 
-python -u xml_to_csv_parser.py &> /storage/home/gopikrishna/out
+python -u generate_images_per_class.py &> /storage/home/gopikrishna/out
