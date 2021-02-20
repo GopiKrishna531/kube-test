@@ -2,6 +2,7 @@
 # then we will create a dataset with train and val folders
 import os
 import glob
+import shutil
 import pandas as pd
 from pprint import pprint
 
