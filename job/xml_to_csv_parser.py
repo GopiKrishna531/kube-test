@@ -144,7 +144,7 @@ def xmltocsv(xmlfile):
                 lines[i + 1] = 1
                 dict[a] = dict[a] + 1
 
-    with open("multi_label_csv_data.csv", "a") as writeFile:
+    with open("/scratch/scratch2/gopi/multi_label_csv_data.csv", "a") as writeFile:
         writer = csv.writer(writeFile)
         writer.writerow(lines)
 
