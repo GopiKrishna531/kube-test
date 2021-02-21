@@ -31,7 +31,7 @@ def build_folders():
     for each_path in paths_list:
         for eps in EPS_LIST:
             for epoch in EPOCHS_LIST:
-                os.mkdir(os.path.join(each_path, f'/for_{eps}_{epoch}'))
+                os.mkdir(os.path.join(each_path, f'for_{eps}_{epoch}'))
 
 
 def create_model():
