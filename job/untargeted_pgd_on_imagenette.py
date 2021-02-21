@@ -27,26 +27,26 @@ EPOCHS_LIST = [100,200,300]
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 
 def build_folders():
-	paths_list = [VAL_PERTURBATIONS_DIR, VAL_ADVERSARIAL_DIR]
-	for each_path in paths_list:
-		for eps in EPS_LIST:
-			for epoch in EPOCHS_LIST:
-				os.mkdir(os.path.join(each_path, f'/for_{eps}_{epoch}'))
+    paths_list = [VAL_PERTURBATIONS_DIR, VAL_ADVERSARIAL_DIR]
+    for each_path in paths_list:
+        for eps in EPS_LIST:
+            for epoch in EPOCHS_LIST:
+                os.mkdir(os.path.join(each_path, f'/for_{eps}_{epoch}'))
 
 
 def create_model():
-	# load the pre-trained CNN from disk
-	my_model = VGG16(weights="imagenet")
-	#my_model.summary()
-	#plot_model(my_model,to_file='vgg16_model.png',show_shapes=False,show_layer_names=True)
+    # load the pre-trained CNN from disk
+    my_model = VGG16(weights="imagenet")
+    #my_model.summary()
+    #plot_model(my_model,to_file='vgg16_model.png',show_shapes=False,show_layer_names=True)
 
 
-	my_model.trainable=False
+    my_model.trainable=False
 
-	# my_model = load_model('/content/VGG16_VOC2012_model.h5')
-	# my_model.summary()
-	# plot_model(my_model)
-	return my_model
+    # my_model = load_model('/content/VGG16_VOC2012_model.h5')
+    # my_model.summary()
+    # plot_model(my_model)
+    return my_model
 
 
 def predict_label(image, my_model):
@@ -120,60 +120,60 @@ def create_adversarial_pattern_pgd(input_image, input_label, my_model, epochs=30
 
 
 if __name__ == '__main__':
-	print('Started execution....!!')
+    print('Started execution....!!')
 
-	all_files_list = []
-	build_folders()
-	print('Finished creating sub-folders.')
+    all_files_list = []
+    build_folders()
+    print('Finished creating sub-folders.')
 
-	my_model = create_model()
-	print('Finished creating model.')
+    my_model = create_model()
+    print('Finished creating model.')
 
-	sub_folders_list = os.listdir(IMAGENETTE_DIR_PATH)
+    sub_folders_list = os.listdir(IMAGENETTE_DIR_PATH)
 
-	for each_sub_folder_name in sub_folders_list:
-		sub_folder_path = IMAGENETTE_DIR_PATH + f'/{each_sub_folder_name}/*.JPEG'
+    for each_sub_folder_name in sub_folders_list:
+        sub_folder_path = IMAGENETTE_DIR_PATH + f'/{each_sub_folder_name}/*.JPEG'
 
-		sub_folder_files = glob(sub_folder_path)
-		all_files_list.extend(sub_folder_files)
+        sub_folder_files = glob(sub_folder_path)
+        all_files_list.extend(sub_folder_files)
 
-	print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
+    print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
 
-	for eps in EPS_LIST:
-	  print(f"We are working for eps = {eps}")
+    for eps in EPS_LIST:
+      print(f"We are working for eps = {eps}")
 
-	  for epochs in EPOCHS_LIST:
-	    print(f"We are working for epochs = {epochs}")
+      for epochs in EPOCHS_LIST:
+        print(f"We are working for epochs = {epochs}")
 
-	    for idx, each_input_image in enumerate(all_files_list):
-			print(f"{idx}", end=" ")
+        for idx, each_input_image in enumerate(all_files_list):
+            print(f"{idx}", end=" ")
 
-			# (temp_path,ext) = os.path.splitext(each_input_image)
-			# (head,tail) = os.path.split(temp_path)
+            # (temp_path,ext) = os.path.splitext(each_input_image)
+            # (head,tail) = os.path.split(temp_path)
 
-			(head,tail) = os.path.split(each_input_image)
-			image = load_img(each_input_image, target_size=(224, 224))
+            (head,tail) = os.path.split(each_input_image)
+            image = load_img(each_input_image, target_size=(224, 224))
 
-	        # create a batch and preprocess the image
-	        image = img_to_array(image)
-	        image = np.expand_dims(image, axis=0)
-	        image = imagenet_utils.preprocess_input(image)
+            # create a batch and preprocess the image
+            image = img_to_array(image)
+            image = np.expand_dims(image, axis=0)
+            image = imagenet_utils.preprocess_input(image)
 
-	        preds = my_model.predict(image)
-	        initial_class = np.argmax(preds[0])
+            preds = my_model.predict(image)
+            initial_class = np.argmax(preds[0])
 
-	        # Get the input label of the image.
-	        class_index = initial_class 
-	        label = tf.one_hot(class_index, preds.shape[-1])
-	        label = tf.reshape(label, (1, preds.shape[-1]))
-	        #print(label.shape)
-	        #print(label[0][initial_class])
-	        perturbations = create_adversarial_pattern_pgd(tf.convert_to_tensor(image, dtype=tf.float32),label, my_model, epochs,eps)
+            # Get the input label of the image.
+            class_index = initial_class 
+            label = tf.one_hot(class_index, preds.shape[-1])
+            label = tf.reshape(label, (1, preds.shape[-1]))
+            #print(label.shape)
+            #print(label[0][initial_class])
+            perturbations = create_adversarial_pattern_pgd(tf.convert_to_tensor(image, dtype=tf.float32),label, my_model, epochs,eps)
 
-	        adv_image = image+eps*perturbations
+            adv_image = image+eps*perturbations
 
-	        result_perturbations_dir = VAL_PERTURBATIONS_DIR + f"/for_{eps}_{epochs}"
-	        save_image(perturbations, f"perturbations_{tail}", result_perturbations_dir)
+            result_perturbations_dir = VAL_PERTURBATIONS_DIR + f"/for_{eps}_{epochs}"
+            save_image(perturbations, f"perturbations_{tail}", result_perturbations_dir)
 
-	        result_adversarial_dir = VAL_ADVERSARIAL_DIR + f"/for_{eps}_{epochs}"
-	        save_image(adv_image, f"adversarial_{tail}", result_adversarial_dir)
+            result_adversarial_dir = VAL_ADVERSARIAL_DIR + f"/for_{eps}_{epochs}"
+            save_image(adv_image, f"adversarial_{tail}", result_adversarial_dir)
