@@ -146,7 +146,7 @@ if __name__ == '__main__':
         print(f"We are working for epochs = {epochs}")
 
         for idx, each_input_image in enumerate(all_files_list):
-            print(f"{idx}", end=" ")
+            print(f'Processing file: {idx}')
 
             # (temp_path,ext) = os.path.splitext(each_input_image)
             # (head,tail) = os.path.split(temp_path)
