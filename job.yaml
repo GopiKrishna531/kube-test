@@ -104,7 +104,7 @@ spec:
 #    - mountPath: /scratch/scratch1
 #      name: scratch1
     - mountPath: /scratch/scratch6
-      name: scratch2
+      name: scratch6
 #    - mountPath: /usr/local/nvidia/bin
 #      name: nvbin
 #    - mountPath: /usr/local/nvidia/lib
