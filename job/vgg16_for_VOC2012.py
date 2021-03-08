@@ -9,6 +9,7 @@ from keras.utils.vis_utils import plot_model
 from keras.layers import Flatten, Dense, AvgPool2D
 from keras.models import Model
 from keras.models import load_model
+from keras.callbacks import EarlyStopping,ModelCheckpoint
 
 # Importing the ImageDataGenerator for pre-processing
 from keras.preprocessing.image import ImageDataGenerator
@@ -85,7 +86,7 @@ def pre_process_data():
     # The rescale parameter ensures the input range in [0, 1]
 
     train_datagen = ImageDataGenerator(
-        rescale=1.0 / 255, preprocessing_function=preprocess_input
+        rescale=1.0 / 255,zoom_range=0.15,width_shift_range=0.2,height_shift_range=0.2,shear_range=0.15, preprocessing_function=preprocess_input
     )
     val_datagen = ImageDataGenerator(
         rescale=1.0 / 255, preprocessing_function=preprocess_input
@@ -94,14 +95,14 @@ def pre_process_data():
     train_generator = train_datagen.flow_from_directory(
         TRAIN_DIR,
         target_size=(224, 224),  # target_size = input image size
-        batch_size=32,
+        batch_size=512,
         class_mode="categorical",
     )
 
     val_generator = val_datagen.flow_from_directory(
         VAL_DIR,
         target_size=(224, 224),  # target_size = input image size
-        batch_size=32,
+        batch_size=512,
         class_mode="categorical",
     )
     print("**** Train generator calss indices *****")
@@ -117,11 +118,16 @@ def train_model(model, train_generator, val_generator):
         loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"]
     )
 
-    history = model.fit(
+    es=EarlyStopping(monitor='val_accuracy', mode='max', verbose=1, patience=20)
+    mc = ModelCheckpoint('/scratch/scratch6/gopi/gopi/Models/VGG16_Model/VGG16_VOC2012_model.h5', monitor='val_accuracy', mode='max', save_best_only=True)
+
+    history = model.fit_generator(
         train_generator,
         epochs=EPOCHS,
-        batch_size=BATCH_SIZE,
         validation_data=val_generator,
+        callbacks = [mc,es],
+        verbose = 1
+
     )
 
     return model, history
@@ -134,9 +140,9 @@ if __name__ == "__main__":
     train_generator, val_generator = pre_process_data()
     result_model, history = train_model(new_model, train_generator, val_generator)
 
-    result_model.save(
-        "/scratch/scratch6/gopi/gopi/Models/VGG16_Model/VGG16_VOC2012_model.h5"
-    )
+    # result_model.save(
+    #     "/scratch/scratch6/gopi/gopi/Models/VGG16_Model/VGG16_VOC2012_model.h5"
+    # )
     print("Successfully saved the model.")
 
     # new_model = load_model('/scratch/scratch2/gopi/Models/VGG Model/VGG16_VOC2012_model.h5')
