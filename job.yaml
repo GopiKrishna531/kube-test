@@ -29,9 +29,9 @@ spec:
 #  - name: scratch1
 #    persistentVolumeClaim:
 #      claimName: scratch1
-  - name: scratch2
+  - name: scratch6
     persistentVolumeClaim:
-      claimName: scratch2
+      claimName: scratch6
   # The following 3 entries make the Nvidia drivers available. You do not need to
   # modify them.
   #- hostPath:
@@ -103,7 +103,7 @@ spec:
 #      name: data3
 #    - mountPath: /scratch/scratch1
 #      name: scratch1
-    - mountPath: /scratch/scratch2
+    - mountPath: /scratch/scratch6
       name: scratch2
 #    - mountPath: /usr/local/nvidia/bin
 #      name: nvbin

@@ -6,7 +6,7 @@ from glob import glob
 from keras.applications.vgg16 import VGG16
 from keras.applications.vgg16 import preprocess_input
 from keras.utils.vis_utils import plot_model
-from keras.layers import Flatten, Dense
+from keras.layers import Flatten, Dense, AvgPool2D
 from keras.models import Model
 from keras.models import load_model
 
@@ -18,8 +18,8 @@ EPOCHS = 7
 BATCH_SIZE = 32
 INPUT_SHAPE = [224, 224, 3]
 
-TRAIN_DIR = "/scratch/scratch2/gopi/TrainValSplitDataset/train"
-VAL_DIR = "/scratch/scratch2/gopi/TrainValSplitDataset/val"
+TRAIN_DIR = "/scratch/scratch6/gopi/gopi/TrainValSplitDataset/train"
+VAL_DIR = "/scratch/scratch6/gopi/gopi/TrainValSplitDataset/val"
 
 IMAGE_CLASSES = [
     "aeroplane",
@@ -56,7 +56,9 @@ def create_model():
     for layer in vgg16.layers:
         layer.trainable = False
 
-    x = Flatten()(vgg16.output)
+    #x = Flatten()(vgg16.output)
+    x = AvgPool2D(pool_size=(4,4),strides = (4,4))(vgg16.output)
+    x = Flatten()(x)
 
     # we can add a new fully connected layer but it will increase the execution time.
     x = Dense(128, activation="relu")(x)
@@ -133,7 +135,7 @@ if __name__ == "__main__":
     result_model, history = train_model(new_model, train_generator, val_generator)
 
     result_model.save(
-        "/scratch/scratch2/gopi/Models/VGG16_Model/VGG16_VOC2012_model.h5"
+        "/scratch/scratch6/gopi/gopi/Models/VGG16_Model/VGG16_VOC2012_model.h5"
     )
     print("Successfully saved the model.")
 
