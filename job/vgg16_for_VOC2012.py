@@ -95,14 +95,14 @@ def pre_process_data():
     train_generator = train_datagen.flow_from_directory(
         TRAIN_DIR,
         target_size=(224, 224),  # target_size = input image size
-        batch_size=512,
+        batch_size=64,
         class_mode="categorical",
     )
 
     val_generator = val_datagen.flow_from_directory(
         VAL_DIR,
         target_size=(224, 224),  # target_size = input image size
-        batch_size=512,
+        batch_size=64,
         class_mode="categorical",
     )
     print("**** Train generator calss indices *****")
