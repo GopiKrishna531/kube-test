@@ -12,13 +12,13 @@ import matplotlib.pyplot as plt
 from glob import glob
 import os
 
-IMAGENETTE_DIR_PATH = '/scratch/scratch2/gopi/imagenette2-320/val'
+IMAGENETTE_DIR_PATH = '/scratch/scratch6/gopi/gopi/imagenette2-320/val'
 
-TRAIN_PERTURBATIONS_DIR = '/scratch/scratch2/gopi/CreatingDataset/ImagenetteDataset/train/PerturbationsPGD'
-TRAIN_ADVERSARIAL_DIR = '/scratch/scratch2/gopi/CreatingDataset/ImagenetteDataset/train/AdversarialPGD'
+TRAIN_PERTURBATIONS_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset/train/PerturbationsPGD'
+TRAIN_ADVERSARIAL_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset/train/AdversarialPGD'
 
-VAL_PERTURBATIONS_DIR = '/scratch/scratch2/gopi/CreatingDataset/ImagenetteDataset/val/PerturbationsPGD'
-VAL_ADVERSARIAL_DIR = '/scratch/scratch2/gopi/CreatingDataset/ImagenetteDataset/val/AdversarialPGD'
+VAL_PERTURBATIONS_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset/val/PerturbationsPGD'
+VAL_ADVERSARIAL_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset/val/AdversarialPGD'
 
 
 
