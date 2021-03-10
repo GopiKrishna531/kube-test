@@ -3,16 +3,16 @@ import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from glob import glob
-from keras.applications.vgg16 import VGG16
-from keras.applications.vgg16 import preprocess_input
-from keras.utils.vis_utils import plot_model
-from keras.layers import Flatten, Dense, AvgPool2D
-from keras.models import Model
-from keras.models import load_model
-from keras.callbacks import EarlyStopping,ModelCheckpoint
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg16 import preprocess_input
+#from keras.utils.vis_utils import plot_model
+from tensorflow.keras.layers import Flatten, Dense, AvgPool2D
+from tensorflow.keras.models import Model
+from tensorflow.keras.models import load_model
+from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
 
 # Importing the ImageDataGenerator for pre-processing
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 print(tf.test.is_gpu_available())
 # EPOCHS = 7
