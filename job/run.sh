@@ -2,7 +2,7 @@
 #
 # Add the Nvidia drivers to the path
 export PATH="/usr/local/nvidia/bin:$PATH"
-export LD_LIBRARY_PATH="/usr/local/nvidia/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="/usr/nvidia/lib64:/usr/local/nvidia/lib:$LD_LIBRARY_PATH"
 # Tools config for CUDA, Anaconda installed in the common /tools directory
 #source /tools/config.sh 
 source /storage/home/gopikrishna/config.sh 
