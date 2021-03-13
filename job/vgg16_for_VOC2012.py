@@ -14,7 +14,8 @@ from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
 # Importing the ImageDataGenerator for pre-processing
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-#print(tf.test.is_gpu_available())
+print(tf.test.is_gpu_available())
+print("***********************************************")
 print(tf.config.list_physical_devices('GPU'))
 # EPOCHS = 7
 # BATCH_SIZE = 32
