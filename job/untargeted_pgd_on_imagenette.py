@@ -4,8 +4,8 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.applications import imagenet_utils
 from tensorflow.keras.models import Model
-from keras.models import load_model
-from keras.utils import plot_model
+from tensorflow.keras.models import load_model
+#from keras.utils import plot_model
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
