@@ -17,8 +17,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 #print(tf.test.is_gpu_available())
 #print("***********************************************")
 #print(tf.config.list_physical_devices('GPU'))
-EPOCHS = 7
-BATCH_SIZE = 32
+EPOCHS = 12
+BATCH_SIZE = 128
 INPUT_SHAPE = [224, 224, 3]
 
 TRAIN_DIR = "/scratch/scratch6/gopi/gopi/TrainValSplitDataset/train"
@@ -97,14 +97,14 @@ def pre_process_data():
     train_generator = train_datagen.flow_from_directory(
         TRAIN_DIR,
         target_size=(224, 224),  # target_size = input image size
-        batch_size=64,
+        batch_size=BATCH_SIZE,
         class_mode="categorical",
     )
 
     val_generator = val_datagen.flow_from_directory(
         VAL_DIR,
         target_size=(224, 224),  # target_size = input image size
-        batch_size=64,
+        batch_size=BATCH_SIZE,
         class_mode="categorical",
     )
     print("**** Train generator calss indices *****")
