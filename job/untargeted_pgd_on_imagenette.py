@@ -22,8 +22,10 @@ VAL_ADVERSARIAL_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDat
 
 
 
-EPS_LIST = [0.01,0.05,0.1,0.5]
-EPOCHS_LIST = [100,200,300]
+# EPS_LIST = [0.01,0.05,0.1,0.5]
+# EPOCHS_LIST = [100,200,300]
+EPS_LIST = [0.01,0.1]
+EPOCHS_LIST = [200]
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 
 def build_folders():
