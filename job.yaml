@@ -75,15 +75,15 @@ spec:
       # For the purposes of using the cluster, the "requests" section should be the
       # same as the "limits" section except for the line for GPU
      limits:
-        nvidia.com/gpu: 1       
+        nvidia.com/gpu: 2       
         #alpha.kubernetes.io/nvidia-gpu: 1 # Number of GPUs
         # RAM can be specified in either MiB (1024x1024 bytes) (ex. "500Mi")
         # or GiB (ex. "4Gi")
         memory: "10.9Gi"
-        cpu: "1" # Number of CPU cores
+        cpu: "2" # Number of CPU cores
      requests:
         memory: "10.9Gi"
-        cpu: "1"
+        cpu: "2"
     # Here, you can specify where you want the above directories to be mounted
     # within the container. It is recommended to use this configuration as
     # it mirrors what is present on the master machine.
