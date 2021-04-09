@@ -52,7 +52,7 @@ def create_model():
 
 
 def predict_label(image, my_model):
-  
+
   preds=my_model.predict(image)
   i=np.argmax(preds[0])
   decoded = imagenet_utils.decode_predictions(preds)
@@ -100,34 +100,33 @@ def save_image(x,filename,images_dir=None):
 
 
 def create_adversarial_pattern_pgd(input_image, input_label, my_model, epochs_list=[200], eps=0.01):
-  perturbations = np.zeros_like(input_image)
-  adv_image = input_image
-  #prev_probs=[]
-  j=0
-  perturbations_per_epochs = []
-  for i in range(np.max(epochs_list)):
+    perturbations = np.zeros_like(input_image)
+    adv_image = input_image
+    #prev_probs=[]
+    j=0
+    perturbations_per_epochs = []
+    for i in range(np.max(epochs_list)):
+        with tf.GradientTape() as tape:
+          tape.watch(adv_image)
+          prediction = my_model(adv_image)
+          loss = loss_object(input_label, prediction)
+        # Get the gradients of the loss w.r.t to the input image.
+        gradient=tape.gradient(loss,adv_image)
+        delta=tf.sign(gradient[0])
+        perturbations=perturbations+delta
+        adv_image=input_image+eps*perturbations
 
-    with tf.GradientTape() as tape:
-      tape.watch(adv_image)
-      prediction = my_model(adv_image)
-      loss = loss_object(input_label, prediction)
-    # Get the gradients of the loss w.r.t to the input image.
-    gradient=tape.gradient(loss,adv_image)
-    delta=tf.sign(gradient[0])
-    perturbations=perturbations+delta
-    adv_image=input_image+eps*perturbations
-
-    if(j<len(epochs_list) and i==epochs_list[j]-1):
-      j++
-      perturbations_per_epochs.append(perturbations)
-
+        if(j<len(epochs_list) and i==epochs_list[j]-1):
+            j+=1
+            perturbations_per_epochs.append(perturbations)
 
 
-    # if(i%20==0):
-    #   predict_label(adv_image,my_model)
 
-    
-  return perturbations_per_epochs
+      # if(i%20==0):
+      #   predict_label(adv_image,my_model)
+
+      
+    return perturbations_per_epochs
 
 
 if __name__ == '__main__':
@@ -181,14 +180,13 @@ if __name__ == '__main__':
         
         i=0
         for epochs in EPOCHS_LIST:
-          for eps in EPS_LIST:
+            for eps in EPS_LIST:
+                print(f"We are working for eps = {eps}")
+                adv_image = image+eps*perturbations_per_epochs[i]
 
-            print(f"We are working for eps = {eps}")
-            adv_image = image+eps*perturbations_per_epochs[i]
+                result_perturbations_dir = VAL_PERTURBATIONS_DIR + f"/for_{eps}_{epochs}"
+                save_image(perturbations, f"perturbations_{tail}", result_perturbations_dir)
 
-            result_perturbations_dir = VAL_PERTURBATIONS_DIR + f"/for_{eps}_{epochs}"
-            save_image(perturbations, f"perturbations_{tail}", result_perturbations_dir)
-
-            result_adversarial_dir = VAL_ADVERSARIAL_DIR + f"/for_{eps}_{epochs}"
-            save_image(adv_image, f"adversarial_{tail}", result_adversarial_dir)
-          i++
+                result_adversarial_dir = VAL_ADVERSARIAL_DIR + f"/for_{eps}_{epochs}"
+                save_image(adv_image, f"adversarial_{tail}", result_adversarial_dir)
+            i+=1
