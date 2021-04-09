@@ -52,6 +52,7 @@ def create_model():
 
 
 def predict_label(image, my_model):
+  
   preds=my_model.predict(image)
   i=np.argmax(preds[0])
   decoded = imagenet_utils.decode_predictions(preds)

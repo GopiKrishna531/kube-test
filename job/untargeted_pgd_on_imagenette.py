@@ -117,6 +117,7 @@ def create_adversarial_pattern_pgd(input_image, input_label, my_model, epochs_li
     adv_image=input_image+eps*perturbations
 
     if(j<len(epochs_list) and i==epochs_list[j]-1):
+      
       j++
       perturbations_per_epochs.append(perturbations)
 
