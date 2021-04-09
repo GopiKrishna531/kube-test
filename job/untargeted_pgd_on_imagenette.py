@@ -117,7 +117,7 @@ def create_adversarial_pattern_pgd(input_image, input_label, my_model, epochs_li
     adv_image=input_image+eps*perturbations
 
     if(j<len(epochs_list) and i==epochs_list[j]-1):
-      j++;
+      j++
       perturbations_per_epochs.append(perturbations)
 
 
@@ -149,42 +149,45 @@ if __name__ == '__main__':
 
     print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
 
-    for epochs in EPOCHS_LIST:
-      print(f"We are working for epochs = {epochs}")
+    # for epochs in EPOCHS_LIST:
+    #   print(f"We are working for epochs = {epochs}")
 
       
+    for idx, each_input_image in enumerate(all_files_list):
+        print(f'Processing file: {idx}')
 
-        for idx, each_input_image in enumerate(all_files_list):
-            print(f'Processing file: {idx}')
+        # (temp_path,ext) = os.path.splitext(each_input_image)
+        # (head,tail) = os.path.split(temp_path)
 
-            # (temp_path,ext) = os.path.splitext(each_input_image)
-            # (head,tail) = os.path.split(temp_path)
+        (head,tail) = os.path.split(each_input_image)
+        image = load_img(each_input_image, target_size=(224, 224))
 
-            (head,tail) = os.path.split(each_input_image)
-            image = load_img(each_input_image, target_size=(224, 224))
+        # create a batch and preprocess the image
+        image = img_to_array(image)
+        image = np.expand_dims(image, axis=0)
+        image = imagenet_utils.preprocess_input(image)
 
-            # create a batch and preprocess the image
-            image = img_to_array(image)
-            image = np.expand_dims(image, axis=0)
-            image = imagenet_utils.preprocess_input(image)
+        preds = my_model.predict(image)
+        initial_class = np.argmax(preds[0]) 
 
-            preds = my_model.predict(image)
-            initial_class = np.argmax(preds[0]) 
+        # Get the input label of the image.
+        class_index = initial_class 
+        label = tf.one_hot(class_index, preds.shape[-1])
+        label = tf.reshape(label, (1, preds.shape[-1]))
+        #print(label.shape)
+        #print(label[0][initial_class])
+        perturbations_per_epochs = create_adversarial_pattern_pgd(tf.convert_to_tensor(image, dtype=tf.float32),label, my_model, EPOCHS_LIST,eps)
+        
+        i=0
+        for epochs in EPOCHS_LIST:
+          for eps in EPS_LIST:
 
-            # Get the input label of the image.
-            class_index = initial_class 
-            label = tf.one_hot(class_index, preds.shape[-1])
-            label = tf.reshape(label, (1, preds.shape[-1]))
-            #print(label.shape)
-            #print(label[0][initial_class])
-            perturbations_per_epochs = create_adversarial_pattern_pgd(tf.convert_to_tensor(image, dtype=tf.float32),label, my_model, EPOCHS_LIST,eps)
+            print(f"We are working for eps = {eps}")
+            adv_image = image+eps*perturbations_per_epochs[i]
 
-            for eps in EPS_LIST:
-              print(f"We are working for eps = {eps}")
-              adv_image = image+eps*perturbations
+            result_perturbations_dir = VAL_PERTURBATIONS_DIR + f"/for_{eps}_{epochs}"
+            save_image(perturbations, f"perturbations_{tail}", result_perturbations_dir)
 
-              result_perturbations_dir = VAL_PERTURBATIONS_DIR + f"/for_{eps}_{epochs}"
-              save_image(perturbations, f"perturbations_{tail}", result_perturbations_dir)
-
-              result_adversarial_dir = VAL_ADVERSARIAL_DIR + f"/for_{eps}_{epochs}"
-              save_image(adv_image, f"adversarial_{tail}", result_adversarial_dir)
+            result_adversarial_dir = VAL_ADVERSARIAL_DIR + f"/for_{eps}_{epochs}"
+            save_image(adv_image, f"adversarial_{tail}", result_adversarial_dir)
+          i++
