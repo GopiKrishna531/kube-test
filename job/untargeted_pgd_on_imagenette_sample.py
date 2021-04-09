@@ -184,7 +184,7 @@ if __name__ == '__main__':
                 adv_image = image+eps*perturbations_per_epochs[i]
 
                 result_perturbations_dir = VAL_PERTURBATIONS_DIR + f"/for_{eps}_{epochs}"
-                save_image(perturbations, f"perturbations_{tail}", result_perturbations_dir)
+                save_image(perturbations_per_epochs[i], f"perturbations_{tail}", result_perturbations_dir)
 
                 result_adversarial_dir = VAL_ADVERSARIAL_DIR + f"/for_{eps}_{epochs}"
                 save_image(adv_image, f"adversarial_{tail}", result_adversarial_dir)
