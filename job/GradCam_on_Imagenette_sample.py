@@ -164,6 +164,8 @@ if __name__ == '__main__':
 
   print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
 
+  my_model = create_model()
+  print('Finished creating model.')
 
 for idx, each_input_image in enumerate(all_files_list):
 
@@ -173,8 +175,7 @@ for idx, each_input_image in enumerate(all_files_list):
     # (head,tail) = os.path.split(temp_path)
 
 
-    my_model = create_model()
-    print('Finished creating model.')
+    
 
     (head,tail) = os.path.split(each_input_image)
     image = load_img(each_input_image, target_size=(224, 224))
@@ -190,7 +191,7 @@ for idx, each_input_image in enumerate(all_files_list):
 
 
     # initialize our gradient class activation map and build the heatmap
-    cam = GradCAM(model, initial_class)
+    cam = GradCAM(my_model, initial_class)
     heatmap = cam.compute_heatmap(image)
 
 
