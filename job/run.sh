@@ -12,6 +12,6 @@ source activate /storage/home/gopikrishna/.conda/envs/gopipy36
 cd /storage/home/gopikrishna/kube-test/job
 # Run the code. The -u option is used here to use unbuffered writes
 # so that output is piped to the file as and when it is produced.
-nvidia-smi &> /storage/home/gopikrishna/out_nvdia
-nvcc --version &> /storage/home/gopikrishna/out_nvcc
-python -u vgg16_for_VOC2012.py &> /storage/home/gopikrishna/out
+# nvidia-smi &> /storage/home/gopikrishna/out_nvdia
+# nvcc --version &> /storage/home/gopikrishna/out_nvcc
+python -u GradCam_on_Imagenette_Sample.py &> /storage/home/gopikrishna/out
