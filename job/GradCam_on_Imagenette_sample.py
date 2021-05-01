@@ -148,6 +148,9 @@ def save_image(x,filename,images_dir=None):
     #plt.imsave(filename,t)
     plt.imsave(f"{images_dir}/{filename}",t)
 
+def save_heatmap(x,filename,images_dir=None):
+    plt.imsave(f"{images_dir}/{filename}",x)
+
 if __name__ == '__main__':
 
   all_files_list = []
@@ -195,4 +198,4 @@ for idx, each_input_image in enumerate(all_files_list):
     heatmap = cam.compute_heatmap(image)
 
 
-    save_image(heatmap,f"{tail}",IS_GRADCAM_ORIGINAL_HEATMAPS_DIR)
+    save_heatmap(heatmap,f"{tail}",IS_GRADCAM_ORIGINAL_HEATMAPS_DIR)
