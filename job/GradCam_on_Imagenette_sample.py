@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from glob import glob
 import os
+import cv2
 
 
 IMAGENETTE_SAMPLE_DIR = '/scratch/scratch6/gopi/gopi/Imagenette_sample'
