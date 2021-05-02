@@ -19,9 +19,9 @@ import cv2
 IMAGENETTE_SAMPLE_DIR = '/scratch/scratch6/gopi/gopi/Imagenette_sample'
 ADVERSARIAL_IMAGES_FGSM_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/AdversarialFGSM'
 ADVERSARIAL_IMAGES_PGD_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/AdversarialPGD'
-IS_GRADCAM_ORIGINAL_HEATMAPS_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/IS_Original_Heatmaps'
-IS_GRADCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/GradCAM_Heatmaps/IS_Adversarial_Heatmaps/IS_Adversarial_Heatmaps_FGSM'
-IS_GRADCAM_ADVERSARIAL_HEATMAPS_PGD_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/GradCAM_Heatmaps/IS_Adversarial_Heatmaps/IS_Adversarial_Heatmaps_PGD'
+IS_ABLATIONCAM_ORIGINAL_HEATMAPS_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/IS_Original_Heatmaps'
+IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/AblationCAM_Heatmaps/IS_Adversarial_Heatmaps/IS_Adversarial_Heatmaps_FGSM'
+IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_PGD_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/AblationCAM_Heatmaps/IS_Adversarial_Heatmaps/IS_Adversarial_Heatmaps_PGD'
 
 
 
@@ -38,6 +38,144 @@ def create_model():
   # my_model.summary()
   # plot_model(my_model)
   return my_model
+
+class AblationCAM:
+    def __init__(self, model, classIdx, layerName=None):
+        # store the model, the class index used to measure the class
+        # activation map, and the layer to be used when visualizing
+        # the class activation map
+        self.model = model
+        self.classIdx = classIdx
+        self.layerName = layerName
+        self.new_model=self.get_new_model()
+        # if the layer name is None, attempt to automatically find
+        # the target output layer
+        if self.layerName is None:
+            self.layerName = self.find_target_layer()
+        self.classifier_layer_names=self.get_classifier_layer_names()
+        self.last_conv_layer=self.model.get_layer(self.layerName)
+        self.last_conv_layer_model=self.get_last_conv_layer_model()
+        self.classifier_model=self.get_classifier_model()
+        
+        
+    
+    def get_new_model(self):
+        #https://stackoverflow.com/questions/58544097/turning-off-softmax-in-tensorflow-models
+
+        assert self.model.layers[-1].activation == tf.keras.activations.softmax
+        config = self.model.layers[-1].get_config()
+        weights = [x.numpy() for x in self.model.layers[-1].weights]
+
+        config['activation'] = tf.keras.activations.linear
+        config['name'] = 'logits'
+
+        new_layer = tf.keras.layers.Dense(**config)(self.model.layers[-2].output)
+        new_model = tf.keras.Model(inputs=[self.model.input], outputs=[new_layer])
+        new_model.layers[-1].set_weights(weights)
+
+        assert new_model.layers[-1].activation == tf.keras.activations.linear
+        return new_model
+
+    def get_classifier_layer_names(self):
+        classifier_lay_names=[]
+        for layer in reversed(self.new_model.layers):
+              # check to see if the layer has a 4D output
+              if len(layer.output.shape) != 4:
+                classifier_lay_names[:0]=[layer.name]
+              else:
+                break
+        return classifier_lay_names
+
+    def find_target_layer(self):
+        # attempt to find the final convolutional layer in the network
+        # by looping over the layers of the network in reverse order
+        for layer in reversed(self.model.layers):
+            # check to see if the layer has a 4D output
+            if len(layer.output.shape) == 4:
+                return layer.name
+
+        # otherwise, we could not find a 4D layer so the GradCAM
+        # algorithm cannot be applied
+        raise ValueError("Could not find 4D layer. Cannot apply GradCAM.")
+
+    def get_last_conv_layer_model(self):
+        #last_conv_layer = self.model.get_layer(layerName)
+        last_conv_layer_model = Model(self.model.inputs, self.last_conv_layer.output)
+        return last_conv_layer_model
+
+    def get_classifier_model(self):
+        classifier_input = keras.Input(shape=self.last_conv_layer.output.shape[1:])
+        x = classifier_input
+
+        for layer_name in self.classifier_layer_names:
+          x = self.new_model.get_layer(layer_name)(x)
+        classifier_model = Model(classifier_input, x)
+        return classifier_model
+
+    
+    
+    def compute_heatmap(self, image, eps=1e-8):
+        activations = self.last_conv_layer_model.predict(image) 
+        #print(activations.shape)
+        #print(activations[-1].shape)
+        last_layer_activation = activations[-1]
+        last_layer_activation = np.expand_dims(last_layer_activation,axis=0)
+        #print(last_layer_activation.shape)
+
+        # heatmap = np.mean(last_layer_activation, axis=-1)
+        # heatmap = np.maximum(heatmap, 0) / np.max(heatmap)
+
+        values = []
+        for i in range(last_layer_activation.shape[-1]):
+          activations = self.last_conv_layer_model.predict(image) 
+          last_layer_activation = activations[-1]
+          activation = last_layer_activation
+          activation = np.expand_dims(activation,axis=0)
+          activation[0,:,:,i]=0.
+          prediction = self.classifier_model(activation)
+          a= prediction[0][self.classIdx]
+          values.append(a.numpy())
+        print(np.sum(values))
+
+
+        pred_prob = self.new_model.predict(image)[0][self.classIdx]
+        pred_probabilities = np.array([pred_prob]*last_layer_activation.shape[-1])
+        values=np.array(values)
+        weight_ratio=(pred_probabilities-values)/pred_probabilities
+        #weight_ratio
+
+        ab_cam = tf.reduce_sum(tf.multiply(weight_ratio, last_layer_activation,), axis=-1)
+        #print(ab_cam.shape)
+        #print(ab_cam)
+        # grab the spatial dimensions of the input image and resize
+        # the output class activation map to match the input image
+        # dimensions
+        (w, h) = (image.shape[2], image.shape[1])
+        heatmap = cv2.resize(ab_cam.numpy(), (w, h))
+        # normalize the heatmap such that all values lie in the range
+        # [0, 1], scale the resulting values to the range [0, 255],
+        # and then convert to an unsigned 8-bit integer
+        numer = heatmap - np.min(heatmap)
+        denom = (heatmap.max() - heatmap.min()) + eps
+        heatmap = numer / denom
+        heatmap = (heatmap * 255).astype("uint8")
+
+
+
+
+        # return the resulting heatmap to the calling function
+        return heatmap
+
+    def overlay_heatmap(self, heatmap, image, alpha=0.5,colormap=cv2.COLORMAP_JET):
+        # apply the supplied color map to the heatmap and then
+        # overlay the heatmap on the input image
+        heatmap = cv2.applyColorMap(heatmap, colormap)
+        output = cv2.addWeighted(image, alpha, heatmap, 1 - alpha, 0)
+
+        # return a 2-tuple of the color mapped heatmap and the output,
+        # overlaid image
+        return (heatmap, output)
+
 
 
 class GradCAM:
@@ -196,11 +334,11 @@ def save_heatmap(x,filename,images_dir=None):
 
 
 #     # initialize our gradient class activation map and build the heatmap
-#     cam = GradCAM(my_model, initial_class)
+#     cam = AblationCAM(my_model, initial_class)
 #     heatmap = cam.compute_heatmap(image)
 
 
-#     save_heatmap(heatmap,f"{tail}",IS_GRADCAM_ORIGINAL_HEATMAPS_DIR)
+#     save_heatmap(heatmap,f"{tail}",IS_ABLATIONCAM_ORIGINAL_HEATMAPS_DIR)
 
 
 # This below main, I used for creating Heatmaps for Adversarial images(FGSM,PGD) of Imagenette sample
@@ -211,7 +349,7 @@ if __name__ == '__main__':
   # build_folders()
   # print('Finished creating sub-folders.')
   fgsm_pgd_source_dirs = [ADVERSARIAL_IMAGES_FGSM_DIR, ADVERSARIAL_IMAGES_PGD_DIR]
-  fgsm_pgd_dest_dirs = [IS_GRADCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, IS_GRADCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
+  fgsm_pgd_dest_dirs = [IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
 
   my_model = create_model()
   print('Finished creating model.')
@@ -256,7 +394,7 @@ if __name__ == '__main__':
 
 
             # initialize our gradient class activation map and build the heatmap
-            cam = GradCAM(my_model, initial_class)
+            cam = AblationCAM(my_model, initial_class)
             heatmap = cam.compute_heatmap(image)
 
             dest = f"{each_dest_path}/{each_sub_folder_name}"
