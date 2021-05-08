@@ -19,7 +19,7 @@ import cv2
 IMAGENETTE_SAMPLE_DIR = '/scratch/scratch6/gopi/gopi/Imagenette_sample'
 ADVERSARIAL_IMAGES_FGSM_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/AdversarialFGSM'
 ADVERSARIAL_IMAGES_PGD_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/AdversarialPGD'
-IS_GRADCAM_ORIGINAL_HEATMAPS_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/IS_Original_Heatmaps'
+IS_ORIGINAL_GRADCAM_HEATMAPS_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/GradCAM_Heatmaps/IS_Original_Heatmaps'
 IS_GRADCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/GradCAM_Heatmaps/IS_Adversarial_Heatmaps/IS_Adversarial_Heatmaps_FGSM'
 IS_GRADCAM_ADVERSARIAL_HEATMAPS_PGD_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/Heatmaps/GradCAM_Heatmaps/IS_Adversarial_Heatmaps/IS_Adversarial_Heatmaps_PGD'
 
@@ -200,7 +200,7 @@ def save_heatmap(x,filename,images_dir=None):
 #     heatmap = cam.compute_heatmap(image)
 
 
-#     save_heatmap(heatmap,f"{tail}",IS_GRADCAM_ORIGINAL_HEATMAPS_DIR)
+#     save_heatmap(heatmap,f"{tail}",IS_ORIGINAL_GRADCAM_HEATMAPS_DIR)
 
 
 # This below main, I used for creating Heatmaps for Adversarial images(FGSM,PGD) of Imagenette sample
