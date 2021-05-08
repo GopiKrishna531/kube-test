@@ -233,7 +233,6 @@ if __name__ == '__main__':
         EACH_TUPLE.append(0)
 
         ALL_ORIGINAL_TUPLES.append(EACH_TUPLE)
-        break
 
         # we just appended a tuple for GradCAM, we can add tuple for AblationCAM with just a slight modification
         # ac_heatmap_path = f"{IS_ORIGINAL_ABLATIONCAM_HEATMAPS_DIR}/{tail}"
@@ -257,8 +256,8 @@ if __name__ == '__main__':
 
     print('################################### Started generating json tuples for Adversarial images. ######################################')
     fgsm_pgd_source_dirs = [ADVERSARIAL_IMAGES_FGSM_DIR, ADVERSARIAL_IMAGES_PGD_DIR]
-    fgsm_pgd_gc_dest_dirs = [IS_GRADCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, IS_GRADCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
-    fgsm_pgd_ac_dest_dirs = [IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
+    fgsm_pgd_gc_dest_dirs = [IS_GRADCAM_ADVERSARIAL_HEATMAPS_FGSM, IS_GRADCAM_ADVERSARIAL_HEATMAPS_PGD]
+    fgsm_pgd_ac_dest_dirs = [IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_FGSM, IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_PGD]
 
     ALL_ADVERSARIAL_TUPLES =[]
     i=0 # we will use i variable to note whether we are working for FGSM or PGD, 0 for FGSM and 1 for PGD
