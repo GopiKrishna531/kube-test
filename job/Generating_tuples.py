@@ -90,7 +90,7 @@ def create_new_logits_model(model):
     config['name'] = 'logits'
 
     new_layer = tf.keras.layers.Dense(**config)(model.layers[-2].output)
-    new_model = tf.keras.Model(inputs=[self.model.input], outputs=[new_layer])
+    new_model = tf.keras.Model(inputs=[model.input], outputs=[new_layer])
     new_model.layers[-1].set_weights(weights)
 
     assert new_model.layers[-1].activation == tf.keras.activations.linear
