@@ -99,6 +99,7 @@ def create_new_logits_model(model):
 def get_logits(logits_model,image):
 
     pred_logits = logits_model.predict(image)[0]
+    print(type(pred_logits))
     return pred_logits
 
 
@@ -219,6 +220,7 @@ if __name__ == '__main__':
         EACH_TUPLE.append(0)
 
         ALL_ORIGINAL_TUPLES.append(EACH_TUPLE)
+        break
 
         # we just appended a tuple for GradCAM, we can add tuple for AblationCAM with just a slight modification
         # ac_heatmap_path = f"{IS_ORIGINAL_ABLATIONCAM_HEATMAPS_DIR}/{tail}"
