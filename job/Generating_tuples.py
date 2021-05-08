@@ -312,6 +312,8 @@ if __name__ == '__main__':
 				# EACH_TUPLE[-1]=1
 				
 				# ALL_ADVERSARIAL_TUPLES.append(EACH_TUPLE)
+			print(f"We have just completed generating json tuples for {each_sub_folder_name}")
+    	print(f"We have just completed generating json tuples for {each_source_path}")
 		if (i==0):
 			print('################# Started generating json tuples for FGSM images #########################')
 		else :
