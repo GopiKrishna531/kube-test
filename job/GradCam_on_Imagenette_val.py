@@ -80,8 +80,8 @@ class GradCAM:
             # associated with the specific class index
             inputs = tf.cast(image, tf.float32)
             (convOutputs, predictions) = gradModel(inputs)
-            print("convOutputs dimensions :",convOutputs.shape)
-            print("predictions dimensions :",predictions.shape)
+            #print("convOutputs dimensions :",convOutputs.shape)
+            #print("predictions dimensions :",predictions.shape)
             loss = predictions[:, self.classIdx]
 
         # use automatic differentiation to compute the gradients
@@ -102,8 +102,8 @@ class GradCAM:
         # as weights, compute the ponderation of the filters with
         # respect to the weights
         weights = tf.reduce_mean(guidedGrads, axis=(0, 1))
-        print("weights shape :",weights.shape)
-        print("convOutputs shape :",convOutputs.shape)
+        #print("weights shape :",weights.shape)
+        #print("convOutputs shape :",convOutputs.shape)
         cam = tf.reduce_sum(tf.multiply(weights, convOutputs), axis=-1)
 
         # grab the spatial dimensions of the input image and resize
@@ -153,120 +153,122 @@ def save_heatmap(x,filename,images_dir=None):
 
 # This below main, I used for creating Heatmaps for Original images of Imagenette sample
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
 
 
-    all_files_list = []
-    # build_folders()
-    # print('Finished creating sub-folders.')
+#     all_files_list = []
+#     # build_folders()
+#     # print('Finished creating sub-folders.')
 
-    sub_folders_list = os.listdir(IMAGENETTE_SAMPLE_DIR)
+#     sub_folders_list = os.listdir(IMAGENETTE_SAMPLE_DIR)
 
-    for each_sub_folder_name in sub_folders_list:
-        sub_folder_path = IMAGENETTE_SAMPLE_DIR + f'/{each_sub_folder_name}/*.JPEG'
+#     for each_sub_folder_name in sub_folders_list:
+#         sub_folder_path = IMAGENETTE_SAMPLE_DIR + f'/{each_sub_folder_name}/*.JPEG'
 
-        sub_folder_files = glob(sub_folder_path)
-        all_files_list.extend(sub_folder_files)
+#         sub_folder_files = glob(sub_folder_path)
+#         all_files_list.extend(sub_folder_files)
 
-    print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
+#     print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
 
-    my_model = create_model()
-    print('Finished creating model.')
+#     my_model = create_model()
+#     print('Finished creating model.')
 
-    for idx, each_input_image in enumerate(all_files_list):
+#     for idx, each_input_image in enumerate(all_files_list):
 
-        print(f'Processing file: {idx}')
+#         print(f'Processing file: {idx}')
 
-        # (temp_path,ext) = os.path.splitext(each_input_image)
-        # (head,tail) = os.path.split(temp_path)
+#         # (temp_path,ext) = os.path.splitext(each_input_image)
+#         # (head,tail) = os.path.split(temp_path)
 
 
         
 
-        (head,tail) = os.path.split(each_input_image)
-        image = load_img(each_input_image, target_size=(224, 224))
+#         (head,tail) = os.path.split(each_input_image)
+#         image = load_img(each_input_image, target_size=(224, 224))
 
-        # create a batch and preprocess the image
-        image = img_to_array(image)
-        image = np.expand_dims(image, axis=0)
-        image = imagenet_utils.preprocess_input(image)
+#         # create a batch and preprocess the image
+#         image = img_to_array(image)
+#         image = np.expand_dims(image, axis=0)
+#         image = imagenet_utils.preprocess_input(image)
 
-        preds = my_model.predict(image)
-        initial_class = np.argmax(preds[0])
-
-
-
-        # initialize our gradient class activation map and build the heatmap
-        cam = GradCAM(my_model, initial_class)
-        heatmap = cam.compute_heatmap(image)
+#         preds = my_model.predict(image)
+#         initial_class = np.argmax(preds[0])
 
 
-        save_heatmap(heatmap,f"{tail}",ORIGINAL_GRADCAM_HEATMAPS_DIR)
-    print("########################################## Completed generating heatmaps for Original images ###################################################")
+
+#         # initialize our gradient class activation map and build the heatmap
+#         cam = GradCAM(my_model, initial_class)
+#         heatmap = cam.compute_heatmap(image)
+
+
+#         save_heatmap(heatmap,f"{tail}",ORIGINAL_GRADCAM_HEATMAPS_DIR)
+#     print("########################################## Completed generating heatmaps for Original images ###################################################")
 
 
 
 # This below main, I used for creating Heatmaps for Adversarial images(FGSM,PGD) of Imagenette sample
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-#   #all_files_list = []
-#   # build_folders()
-#   # print('Finished creating sub-folders.')
-#   fgsm_pgd_source_dirs = [ADVERSARIAL_IMAGES_FGSM_DIR, ADVERSARIAL_IMAGES_PGD_DIR]
-#   fgsm_pgd_dest_dirs = [GRADCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, GRADCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
+    #all_files_list = []
+    # build_folders()
+    # print('Finished creating sub-folders.')
+    fgsm_pgd_source_dirs = [ADVERSARIAL_IMAGES_FGSM_DIR, ADVERSARIAL_IMAGES_PGD_DIR]
+    fgsm_pgd_dest_dirs = [GRADCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, GRADCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
 
-#   my_model = create_model()
-#   print('Finished creating model.')
+    my_model = create_model()
+    print('Finished creating model.')
 
-#   for (each_source_path,each_dest_path) in zip(fgsm_pgd_source_dirs, fgsm_pgd_dest_dirs):
-
-
-#     sub_folders_list = os.listdir(each_source_path)
-
-#     for each_sub_folder_name in sub_folders_list:
-
-#         sub_folder_path = each_source_path + f'/{each_sub_folder_name}/*.JPEG'
-
-#         sub_folder_files = glob(sub_folder_path)
-#         #all_files_list.extend(sub_folder_files)
-
-#         #print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
+    for (each_source_path,each_dest_path) in zip(fgsm_pgd_source_dirs, fgsm_pgd_dest_dirs):
 
 
+        sub_folders_list = os.listdir(each_source_path)
 
-#         for idx, each_input_image in enumerate(sub_folder_files):
+        for each_sub_folder_name in sub_folders_list:
 
-#             print(f'Processing file: {idx}')
+            sub_folder_path = each_source_path + f'/{each_sub_folder_name}/*.JPEG'
 
-#             # (temp_path,ext) = os.path.splitext(each_input_image)
-#             # (head,tail) = os.path.split(temp_path)
+            sub_folder_files = glob(sub_folder_path)
+            #all_files_list.extend(sub_folder_files)
 
-
-            
-
-#             (head,tail) = os.path.split(each_input_image)
-#             image = load_img(each_input_image, target_size=(224, 224))
-
-#             # create a batch and preprocess the image
-#             image = img_to_array(image)
-#             image = np.expand_dims(image, axis=0)
-#             image = imagenet_utils.preprocess_input(image)
-
-#             preds = my_model.predict(image)
-#             initial_class = np.argmax(preds[0])
+            #print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
 
 
 
-#             # initialize our gradient class activation map and build the heatmap
-#             cam = GradCAM(my_model, initial_class)
-#             heatmap = cam.compute_heatmap(image)
+            for idx, each_input_image in enumerate(sub_folder_files):
 
-#             dest = f"{each_dest_path}/{each_sub_folder_name}"
-#             save_heatmap(heatmap,f"{tail}",dest)
-#         print(f"We have just Completed generating heatmaps for {each_sub_folder_name}")
-#     print(f"We have just completed generating heatmaps for {each_source_path}")
+                print(f'Processing file: {idx}')
+
+                # (temp_path,ext) = os.path.splitext(each_input_image)
+                # (head,tail) = os.path.split(temp_path)
+
+
+                
+
+                (head,tail) = os.path.split(each_input_image)
+                image = load_img(each_input_image, target_size=(224, 224))
+
+                # create a batch and preprocess the image
+                image = img_to_array(image)
+                image = np.expand_dims(image, axis=0)
+                image = imagenet_utils.preprocess_input(image)
+
+                preds = my_model.predict(image)
+                initial_class = np.argmax(preds[0])
+
+
+
+                # initialize our gradient class activation map and build the heatmap
+                cam = GradCAM(my_model, initial_class)
+                heatmap = cam.compute_heatmap(image)
+
+                dest = f"{each_dest_path}/{each_sub_folder_name}"
+                save_heatmap(heatmap,f"{tail}",dest)
+            print(f"We have just Completed generating heatmaps for {each_sub_folder_name}")
+        print(f"We have just completed generating heatmaps for {each_source_path}")
+    print("########################################## Completed generating heatmaps for Adversarial images ###################################################")
+
 
 
 
