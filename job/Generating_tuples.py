@@ -166,11 +166,11 @@ if __name__ == '__main__':
 
 	############################# We will work for Original images for both GradCAM and AblationCAM ################################
 
+	print("######################## Started generating json tuples for original images ###################################")
 	ALL_ORIGINAL_TUPLES=[]
 	
   	all_files_list = []
-  	# build_folders()
-  	# print('Finished creating sub-folders.')
+  	
 
   	sub_folders_list = os.listdir(IMAGENETTE_SAMPLE_DIR)
 
@@ -237,9 +237,10 @@ if __name__ == '__main__':
 	with open(original_dest, 'w') as f:
 	  	json.dump(ALL_ORIGINAL_TUPLES_DICT, f)
 
+	print('################################### Finished generating json tuples for Original images. #######################################')
 	############################### For Adversarial images and GradCAM Heatmaps and with slightly adding code we can insert tuple for Ablation cam as well ###################################
 
-
+	print('################################### Started generating json tuples for Adversarial images. ######################################')
 	fgsm_pgd_source_dirs = [ADVERSARIAL_IMAGES_FGSM_DIR, ADVERSARIAL_IMAGES_PGD_DIR]
   	fgsm_pgd_gc_dest_dirs = [IS_GRADCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, IS_GRADCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
   	fgsm_pgd_ac_dest_dirs = [IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, IS_ABLATIONCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
@@ -247,6 +248,10 @@ if __name__ == '__main__':
   	ALL_ADVERSARIAL_TUPLES =[]
   	i=0 # we will use i variable to note whether we are working for FGSM or PGD, 0 for FGSM and 1 for PGD
 	for (each_source_path,each_gc_dest_path, each_ac_dest_path) in zip(fgsm_pgd_source_dirs, fgsm_pgd_gc_dest_dirs, fgsm_pgd_ac_dest_dirs):
+		if (i==0):
+			print('################# Started generating json tuples for FGSM images #########################')
+		else :
+			print('################# Started generating json tuples for PGD images #########################')
 
 	    sub_folders_list = os.listdir(each_source_path)
 
@@ -307,7 +312,12 @@ if __name__ == '__main__':
 				# EACH_TUPLE[-1]=1
 				
 				# ALL_ADVERSARIAL_TUPLES.append(EACH_TUPLE)
+		if (i==0):
+			print('################# Started generating json tuples for FGSM images #########################')
+		else :
+			print('################# Started generating json tuples for PGD images #########################')
 		i+=1
+
 	ALL_ADVERSARIAL_TUPLES_DICT = [dict(zip(column_names,each_list)) for each_list in ALL_ADVERSARIAL_TUPLES]
 	# for each_image in all_images:
 	#   result.append(dict(zip(Column_names, each_image)))
@@ -315,6 +325,7 @@ if __name__ == '__main__':
 	adversarial_dest = f"{JSON_DEST_DIR}/adversarial_json.json"
 	with open(adversarial_dest, 'w') as f:
 	  	json.dump(ALL_ADVERSARIAL_TUPLES_DICT, f)
+	print('################################### Finished generating json tuples for Adversarial images. ######################################')
 
 
 
