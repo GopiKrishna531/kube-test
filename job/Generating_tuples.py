@@ -99,6 +99,10 @@ def create_new_logits_model(model):
 def get_logits(logits_model,image):
 
     pred_logits = logits_model.predict(image)[0]
+    print(pred_logits)
+    print(type(pred_logits))
+    pred_logits=pred_logits.tolist()
+    print(pred_logits)
     print(type(pred_logits))
     return pred_logits
 
