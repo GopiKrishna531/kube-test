@@ -99,11 +99,11 @@ def create_new_logits_model(model):
 def get_logits(logits_model,image):
 
     pred_logits = logits_model.predict(image)[0]
-    print(pred_logits)
-    print(type(pred_logits))
-    pred_logits=pred_logits.tolist()
-    print(pred_logits)
-    print(type(pred_logits))
+    # print(pred_logits)
+    # print(type(pred_logits))
+    # pred_logits=pred_logits.tolist()
+    # print(pred_logits)
+    # print(type(pred_logits))
     return pred_logits
 
 
@@ -158,7 +158,16 @@ def get_label_before_perturbation(model,tail):
     return get_predicted_label(model,image)
 
 
-
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 
 
@@ -241,7 +250,7 @@ if __name__ == '__main__':
 
     original_dest = f"{JSON_DEST_DIR}/original_json.json"
     with open(original_dest, 'w') as f:
-        json.dump(ALL_ORIGINAL_TUPLES_DICT, f)
+        json.dump(ALL_ORIGINAL_TUPLES_DICT, f, cls=NumpyEncoder)
 
     print('################################### Finished generating json tuples for Original images. #######################################')
     ############################### For Adversarial images and GradCAM Heatmaps and with slightly adding code we can insert tuple for Ablation cam as well ###################################
@@ -332,7 +341,7 @@ if __name__ == '__main__':
 
     adversarial_dest = f"{JSON_DEST_DIR}/adversarial_json.json"
     with open(adversarial_dest, 'w') as f:
-        json.dump(ALL_ADVERSARIAL_TUPLES_DICT, f)
+        json.dump(ALL_ADVERSARIAL_TUPLES_DICT, f, cls=NumpyEncoder)
     print('################################### Finished generating json tuples for Adversarial images. ######################################')
 
 
