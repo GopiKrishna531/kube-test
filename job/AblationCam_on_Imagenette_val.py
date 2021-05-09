@@ -15,6 +15,8 @@ from glob import glob
 import os
 import cv2
 import time
+import warnings
+warnings.filterwarnings("ignore")
 
 
 IMAGENETTE_SAMPLE_DIR = '/scratch/scratch6/gopi/gopi/imagenette2-320/val'

@@ -14,7 +14,8 @@ import matplotlib.pyplot as plt
 from glob import glob
 import os
 import cv2
-
+import warnings
+warnings.filterwarnings("ignore")
 
 IMAGENETTE_SAMPLE_DIR = '/scratch/scratch6/gopi/gopi/Imagenette_sample'
 ADVERSARIAL_IMAGES_FGSM_DIR = '/scratch/scratch6/gopi/gopi/CreatingDataset/ImagenetteDataset_sample/val/AdversarialFGSM'
