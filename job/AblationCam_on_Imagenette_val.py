@@ -127,16 +127,17 @@ class AblationCAM:
         # heatmap = np.maximum(heatmap, 0) / np.max(heatmap)
 
         values = []
+        activations = self.last_conv_layer_model.predict(image) 
+        last_layer_activation = activations[-1]
+        activation = last_layer_activation
+        activation = np.expand_dims(activation,axis=0)
         for i in range(last_layer_activation.shape[-1]):
-          activations = self.last_conv_layer_model.predict(image) 
-          last_layer_activation = activations[-1]
-          activation = last_layer_activation
-          activation = np.expand_dims(activation,axis=0)
-          activation[0,:,:,i]=0.
-          prediction = self.classifier_model(activation)
-          a= prediction[0][self.classIdx]
-          values.append(a.numpy())
-        print(np.sum(values))
+            activation_copy = activation.copy()
+            activation_copy[0,:,:,i]=0.
+            prediction = self.classifier_model(activation_copy)
+            a= prediction[0][self.classIdx]
+            values.append(a.numpy())
+        #print(np.sum(values))
 
 
         pred_prob = self.new_model.predict(image)[0][self.classIdx]
