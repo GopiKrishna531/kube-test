@@ -243,18 +243,17 @@ if __name__ == '__main__':
 
 
         # initialize our gradient class activation map and build the heatmap
-        start = time.time()
+        #start = time.time()
         cam = AblationCAM(my_model, initial_class)
-        end = time.time()
-        print(f"For creating cam object it takes : {round(start-end,2)} sec")
-        start = time.time()
+        #end = time.time()
+        #print(f"For creating cam object it takes : {round(start-end,2)} sec")
+        #start = time.time()
         heatmap = cam.compute_heatmap(image)
-        end = time.time()
-        print(f"compute_heatmap takes : {round(start-end,2)} sec")
+        #end = time.time()
+        #print(f"compute_heatmap takes : {round(start-end,2)} sec")
 
 
         save_heatmap(heatmap,f"{tail}",ORIGINAL_ABLATIONCAM_HEATMAPS_DIR)
-        break
 
     print("########################################## Completed generating heatmaps for Original images ###################################################")
 
