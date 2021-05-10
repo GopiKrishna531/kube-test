@@ -43,12 +43,12 @@ def create_model():
   return my_model
 
 class AblationCAM:
-    def __init__(self, model, classIdx, layerName=None):
+    def __init__(self, model, layerName=None):
         # store the model, the class index used to measure the class
         # activation map, and the layer to be used when visualizing
         # the class activation map
         self.model = model
-        self.classIdx = classIdx
+        self.classIdx = None
         self.layerName = layerName
         self.new_model=self.get_new_model()
         # if the layer name is None, attempt to automatically find
@@ -60,7 +60,8 @@ class AblationCAM:
         self.last_conv_layer_model=self.get_last_conv_layer_model()
         self.classifier_model=self.get_classifier_model()
         
-        
+    def get_classIdx(self, classId):
+        self.classIdx = classId
     
     def get_new_model(self):
         #https://stackoverflow.com/questions/58544097/turning-off-softmax-in-tensorflow-models
@@ -118,18 +119,18 @@ class AblationCAM:
     
     
     def compute_heatmap(self, image, eps=1e-8):
-        activations = self.last_conv_layer_model.predict(image) 
+        #activations = self.last_conv_layer_model.predict(image) 
         #print(activations.shape)
         #print(activations[-1].shape)
-        last_layer_activation = activations[-1]
-        last_layer_activation = np.expand_dims(last_layer_activation,axis=0)
+        #last_layer_activation = activations[-1]
+        #last_layer_activation = np.expand_dims(last_layer_activation,axis=0)
         #print(last_layer_activation.shape)
 
         # heatmap = np.mean(last_layer_activation, axis=-1)
         # heatmap = np.maximum(heatmap, 0) / np.max(heatmap)
 
         values = []
-        activations = self.last_conv_layer_model.predict(image) 
+        activations = self.last_conv_layer_model(image) 
         last_layer_activation = activations[-1]
         activation = last_layer_activation
         activation = np.expand_dims(activation,axis=0)
@@ -142,7 +143,7 @@ class AblationCAM:
         #print(np.sum(values))
 
 
-        pred_prob = self.new_model.predict(image)[0][self.classIdx]
+        pred_prob = self.new_model(image)[0][self.classIdx]
         pred_probabilities = np.array([pred_prob]*last_layer_activation.shape[-1])
         values=np.array(values)
         weight_ratio=(pred_probabilities-values)/pred_probabilities
@@ -202,126 +203,133 @@ def save_heatmap(x,filename,images_dir=None):
 
 # This below main, I used for creating Heatmaps for Original images of Imagenette sample
 
-if __name__ == '__main__':
-
-    all_files_list = []
-    # build_folders()
-    # print('Finished creating sub-folders.')
-
-    sub_folders_list = os.listdir(IMAGENETTE_SAMPLE_DIR)
-
-    for each_sub_folder_name in sub_folders_list:
-      sub_folder_path = IMAGENETTE_SAMPLE_DIR + f'/{each_sub_folder_name}/*.JPEG'
-
-      sub_folder_files = glob(sub_folder_path)
-      all_files_list.extend(sub_folder_files)
-
-    print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
-
-    my_model = create_model()
-    print('Finished creating model.')
-
-    for idx, each_input_image in enumerate(all_files_list):
-
-        print(f'Processing file: {idx}')
-
-        # (temp_path,ext) = os.path.splitext(each_input_image)
-        # (head,tail) = os.path.split(temp_path)
-
-
-        
-
-        (head,tail) = os.path.split(each_input_image)
-        image = load_img(each_input_image, target_size=(224, 224))
-
-        # create a batch and preprocess the image
-        image = img_to_array(image)
-        image = np.expand_dims(image, axis=0)
-        image = imagenet_utils.preprocess_input(image)
-
-        preds = my_model.predict(image)
-        initial_class = np.argmax(preds[0])
-
-
-
-        # initialize our gradient class activation map and build the heatmap
-        #start = time.time()
-        cam = AblationCAM(my_model, initial_class)
-        #end = time.time()
-        #print(f"For creating cam object it takes : {round(start-end,2)} sec")
-        #start = time.time()
-        heatmap = cam.compute_heatmap(image)
-        #end = time.time()
-        #print(f"compute_heatmap takes : {round(start-end,2)} sec")
-
-
-        save_heatmap(heatmap,f"{tail}",ORIGINAL_ABLATIONCAM_HEATMAPS_DIR)
-
-    print("########################################## Completed generating heatmaps for Original images ###################################################")
-
-# This below main, I used for creating Heatmaps for Adversarial images(FGSM,PGD) of Imagenette sample
-
 # if __name__ == '__main__':
 
-#     #all_files_list = []
+#     all_files_list = []
 #     # build_folders()
 #     # print('Finished creating sub-folders.')
-#     fgsm_pgd_source_dirs = [ADVERSARIAL_IMAGES_FGSM_DIR, ADVERSARIAL_IMAGES_PGD_DIR]
-#     fgsm_pgd_dest_dirs = [ABLATIONCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, ABLATIONCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
+
+#     sub_folders_list = os.listdir(IMAGENETTE_SAMPLE_DIR)
+
+#     for each_sub_folder_name in sub_folders_list:
+#       sub_folder_path = IMAGENETTE_SAMPLE_DIR + f'/{each_sub_folder_name}/*.JPEG'
+
+#       sub_folder_files = glob(sub_folder_path)
+#       all_files_list.extend(sub_folder_files)
+
+#     print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
 
 #     my_model = create_model()
 #     print('Finished creating model.')
 
-#     for (each_source_path,each_dest_path) in zip(fgsm_pgd_source_dirs, fgsm_pgd_dest_dirs):
+#     cam = AblationCAM(my_model)
 
-#         print(f"####################################### Started generating heatmaps for {each_source_path} #########################################")
+#     for idx, each_input_image in enumerate(all_files_list):
 
-#         sub_folders_list = os.listdir(each_source_path)
+#         print(f'Processing file: {idx}')
 
-#         for each_sub_folder_name in sub_folders_list:
-#             print(f"########################### Started generating heatmaps for {each_sub_folder_name} ###############################")
-#             sub_folder_path = each_source_path + f'/{each_sub_folder_name}/*.JPEG'
-
-#             sub_folder_files = glob(sub_folder_path)
-#             #all_files_list.extend(sub_folder_files)
-
-#             #print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
+#         # (temp_path,ext) = os.path.splitext(each_input_image)
+#         # (head,tail) = os.path.split(temp_path)
 
 
+        
 
-#             for idx, each_input_image in enumerate(sub_folder_files):
+#         (head,tail) = os.path.split(each_input_image)
+#         image = load_img(each_input_image, target_size=(224, 224))
 
-#                 print(f'Processing file: {idx}')
+#         # create a batch and preprocess the image
+#         image = img_to_array(image)
+#         image = np.expand_dims(image, axis=0)
+#         image = imagenet_utils.preprocess_input(image)
 
-#                 # (temp_path,ext) = os.path.splitext(each_input_image)
-#                 # (head,tail) = os.path.split(temp_path)
+#         preds = my_model(image)
+#         initial_class = np.argmax(preds[0])
+
+
+
+#         # initialize our gradient class activation map and build the heatmap
+#         #start = time.time()
+#         #cam = AblationCAM(my_model, initial_class)
+#         #end = time.time()
+#         #print(f"For creating cam object it takes : {round(start-end,2)} sec")
+#         #start = time.time()
+
+#         cam.get_classIdx(initial_class)
+#         heatmap = cam.compute_heatmap(image)
+#         #end = time.time()
+#         #print(f"compute_heatmap takes : {round(start-end,2)} sec")
+
+
+#         save_heatmap(heatmap,f"{tail}",ORIGINAL_ABLATIONCAM_HEATMAPS_DIR)
+
+#     print("########################################## Completed generating heatmaps for Original images ###################################################")
+
+# This below main, I used for creating Heatmaps for Adversarial images(FGSM,PGD) of Imagenette sample
+
+if __name__ == '__main__':
+
+    #all_files_list = []
+    # build_folders()
+    # print('Finished creating sub-folders.')
+    fgsm_pgd_source_dirs = [ADVERSARIAL_IMAGES_FGSM_DIR, ADVERSARIAL_IMAGES_PGD_DIR]
+    fgsm_pgd_dest_dirs = [ABLATIONCAM_ADVERSARIAL_HEATMAPS_FGSM_DIR, ABLATIONCAM_ADVERSARIAL_HEATMAPS_PGD_DIR]
+
+    my_model = create_model()
+    print('Finished creating model.')
+
+    cam = AblationCAM(my_model)
+
+    for (each_source_path,each_dest_path) in zip(fgsm_pgd_source_dirs, fgsm_pgd_dest_dirs):
+
+        print(f"####################################### Started generating heatmaps for {each_source_path} #########################################")
+
+        sub_folders_list = os.listdir(each_source_path)
+
+        for each_sub_folder_name in sub_folders_list:
+            print(f"########################### Started generating heatmaps for {each_sub_folder_name} ###############################")
+            sub_folder_path = each_source_path + f'/{each_sub_folder_name}/*.JPEG'
+
+            sub_folder_files = glob(sub_folder_path)
+            #all_files_list.extend(sub_folder_files)
+
+            #print('Extracted all files into a list, total files: ' + str(len(all_files_list)))
+
+
+
+            for idx, each_input_image in enumerate(sub_folder_files):
+
+                print(f'Processing file: {idx}')
+
+                # (temp_path,ext) = os.path.splitext(each_input_image)
+                # (head,tail) = os.path.split(temp_path)
 
 
                 
 
-#                 (head,tail) = os.path.split(each_input_image)
-#                 image = load_img(each_input_image, target_size=(224, 224))
+                (head,tail) = os.path.split(each_input_image)
+                image = load_img(each_input_image, target_size=(224, 224))
 
-#                 # create a batch and preprocess the image
-#                 image = img_to_array(image)
-#                 image = np.expand_dims(image, axis=0)
-#                 image = imagenet_utils.preprocess_input(image)
+                # create a batch and preprocess the image
+                image = img_to_array(image)
+                image = np.expand_dims(image, axis=0)
+                image = imagenet_utils.preprocess_input(image)
 
-#                 preds = my_model.predict(image)
-#                 initial_class = np.argmax(preds[0])
+                preds = my_model(image)
+                initial_class = np.argmax(preds[0])
 
 
 
-#                 # initialize our gradient class activation map and build the heatmap
+                # initialize our gradient class activation map and build the heatmap
 
-#                 cam = AblationCAM(my_model, initial_class)
-#                 heatmap = cam.compute_heatmap(image)
+                #cam = AblationCAM(my_model, initial_class)
+                cam.get_classIdx(initial_class)
+                heatmap = cam.compute_heatmap(image)
 
-#                 dest = f"{each_dest_path}/{each_sub_folder_name}"
-#                 save_heatmap(heatmap,f"{tail}",dest)
-#             print(f"##################################### Completed generating heatmaps for {each_sub_folder_name} #####################################")
-#         print(f"####################################### completed generating heatmaps for {each_source_path} #########################################")
-#     print("########################################## Completed generating heatmaps for Adversarial images ###################################################")
+                dest = f"{each_dest_path}/{each_sub_folder_name}"
+                save_heatmap(heatmap,f"{tail}",dest)
+            print(f"##################################### Completed generating heatmaps for {each_sub_folder_name} #####################################")
+        print(f"####################################### completed generating heatmaps for {each_source_path} #########################################")
+    print("########################################## Completed generating heatmaps for Adversarial images ###################################################")
 
 
 
